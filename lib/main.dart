@@ -1,6 +1,5 @@
+import 'package:animations/carusel_view.dart';
 import 'package:flutter/material.dart';
-
-import 'bouncy_radio_group.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,11 +16,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: ContainerApp(),
+      home: CaruselView(),
     );
   }
 }
-
 
 // write a stateful widget that has 5 images and a bouncy radio group
 class ContainerApp extends StatefulWidget {
@@ -75,11 +73,9 @@ class _ContainerAppState extends State<ContainerApp> {
                     ),
                   ),
                 );
-              }
-          ),
+              }),
         ),
       ),
     );
   }
 }
-
