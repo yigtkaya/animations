@@ -1,8 +1,20 @@
 import 'package:animations/carusel_view.dart';
+import 'package:animations/soft_animation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
-  runApp(const MyApp());
+  // set navigation buttons on android white
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(systemNavigationBarColor: Colors.white));
+
+  runApp(
+    const MaterialApp(
+      home: Scaffold(
+        backgroundColor: Colors.white,
+        body: TaskListAnimation(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -23,6 +35,8 @@ class MyApp extends StatelessWidget {
 
 // write a stateful widget that has 5 images and a bouncy radio group
 class ContainerApp extends StatefulWidget {
+  const ContainerApp({super.key});
+
   @override
   _ContainerAppState createState() => _ContainerAppState();
 }
@@ -47,33 +61,34 @@ class _ContainerAppState extends State<ContainerApp> {
         child: SizedBox(
           height: 300,
           child: ListView.separated(
-              itemCount: 5,
-              scrollDirection: Axis.horizontal,
-              separatorBuilder: (BuildContext context, int index) {
-                return const SizedBox(width: 10);
-              },
-              itemBuilder: (BuildContext context, int index) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    width: selectedIndex == index ? 200 : 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.0),
-                      border: selectedIndex == index ? Border.all(color: Colors.greenAccent, width: 2) : null,
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: NetworkImage(images[index]),
-                      ),
+            itemCount: 5,
+            scrollDirection: Axis.horizontal,
+            separatorBuilder: (BuildContext context, int index) {
+              return const SizedBox(width: 10);
+            },
+            itemBuilder: (BuildContext context, int index) {
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedIndex = index;
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  width: selectedIndex == index ? 200 : 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0),
+                    border: selectedIndex == index ? Border.all(color: Colors.greenAccent, width: 2) : null,
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(images[index]),
                     ),
                   ),
-                );
-              }),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
