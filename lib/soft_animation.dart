@@ -1,5 +1,8 @@
+import 'package:animations/fade_in_slide.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
+
+import 'package:flutter/services.dart';
 
 class TaskListAnimation extends StatefulWidget {
   const TaskListAnimation({super.key});
@@ -8,7 +11,8 @@ class TaskListAnimation extends StatefulWidget {
   State<TaskListAnimation> createState() => _TaskListAnimationState();
 }
 
-class _TaskListAnimationState extends State<TaskListAnimation> {
+class _TaskListAnimationState extends State<TaskListAnimation> with SingleTickerProviderStateMixin {
+  final fadeInSlideKey = GlobalKey<FadeInSlideState>();
   bool isExpanded = false;
   double dragStart = 0;
 
@@ -17,16 +21,23 @@ class _TaskListAnimationState extends State<TaskListAnimation> {
 
   void _handleDragUpdate(DragUpdateDetails details) {
     if (dragStart - details.globalPosition.dy > 20 && isExpanded) {
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(statusBarBrightness: Brightness.light));
       setState(() => isExpanded = false);
     } else if (dragStart - details.globalPosition.dy < -20 && !isExpanded) {
-      setState(() => isExpanded = true);
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(statusBarBrightness: Brightness.dark));
+
+      setState(() {
+        isExpanded = true;
+        fadeInSlideKey.currentState?.resetAnimation();
+        fadeInSlideKey.currentState?.playAnimation();
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final topMargin = _screenHeight(context) * 0.1;
-    final expandedHeight = _screenHeight(context) * 0.5;
+    final expandedHeight = _screenHeight(context) * 0.55;
     final horizontalPadding = _screenWidth(context) * 0.05;
 
     return Scaffold(
@@ -35,132 +46,115 @@ class _TaskListAnimationState extends State<TaskListAnimation> {
         top: false,
         child: Stack(
           children: [
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/particules.gif'),
-                  fit: BoxFit.cover,
-                ),
-              ),
+            FadeInSlide(
+              key: fadeInSlideKey,
+              duration: 0.3,
+              autoPlay: false,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: horizontalPadding).copyWith(top: topMargin),
-                child: TweenAnimationBuilder<double>(
-                  duration: const Duration(milliseconds: 300),
-                  tween: Tween<double>(
-                    begin: isExpanded ? 0 : 3,
-                    end: isExpanded ? 0 : 3,
-                  ),
-                  builder: (context, blur, child) => BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: blur,
-                      sigmaY: blur,
-                    ),
-                    child: TweenAnimationBuilder<double>(
-                      duration: const Duration(milliseconds: 300),
-                      tween: Tween<double>(
-                        begin: isExpanded ? 0 : 3,
-                        end: isExpanded ? 0 : 3,
-                      ),
-                      builder: (context, blur, child) => BackdropFilter(
-                        filter: ImageFilter.blur(
-                          sigmaX: blur,
-                          sigmaY: blur,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 36),
+                    RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                          color: Colors.white60,
+                          fontSize: 28,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 32),
-                            RichText(
-                              text: const TextSpan(
-                                style: TextStyle(
-                                  color: Colors.white60,
-                                  fontSize: 28,
-                                ),
-                                children: [
-                                  TextSpan(text: 'Good morning, '),
-                                  TextSpan(text: '🧑 '),
-                                  TextSpan(
-                                    text: "Yiğit",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                        children: [
+                          TextSpan(text: 'Good morning, '),
+                          TextSpan(text: '🧑 '),
+                          TextSpan(
+                            text: "Yiğit",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
                             ),
-                            const SizedBox(height: 8),
-                            RichText(
-                              text: const TextSpan(
-                                style: TextStyle(
-                                  color: Colors.white60,
-                                  fontSize: 28,
-                                ),
-                                children: [
-                                  TextSpan(text: 'You have '),
-                                  TextSpan(text: '📅 '),
-                                  TextSpan(
-                                    text: '3 meetings',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  TextSpan(text: ', '),
-                                  TextSpan(text: '✓ '),
-                                  TextSpan(
-                                    text: '2 tasks',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  TextSpan(text: ' and '),
-                                  TextSpan(text: '💪 '),
-                                  TextSpan(
-                                    text: '1 habit',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  TextSpan(text: ' today. You\'re mostly free\nafter 4 pm.'),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 32),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _iconTextItem(
-                                  Icons.star,
-                                  Colors.yellow,
-                                  '4.7k steps',
-                                ),
-                                _iconTextItem(
-                                  Icons.nightlight_round,
-                                  Colors.blue,
-                                  '6:37 hours',
-                                ),
-                                _iconTextItem(
-                                  Icons.access_alarm,
-                                  Colors.green,
-                                  '36 min',
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 32),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                          color: Colors.white60,
+                          fontSize: 30,
+                        ),
+                        children: [
+                          TextSpan(text: 'You have '),
+                          TextSpan(text: '📅 '),
+                          TextSpan(
+                            text: '3 meetings',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          TextSpan(text: ', '),
+                          TextSpan(text: '✓ '),
+                          TextSpan(
+                            text: '2 tasks',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          TextSpan(text: ' and '),
+                          TextSpan(text: '💪 '),
+                          TextSpan(
+                            text: '1 habit',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          TextSpan(text: ' today. You\'re mostly free\nafter 4 pm.'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 36),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _iconTextItem(
+                          Icons.star,
+                          Colors.yellow,
+                          '4.7k steps',
+                        ),
+                        _iconTextItem(
+                          Icons.nightlight_round,
+                          Colors.blue,
+                          '6:37 hours',
+                        ),
+                        _iconTextItem(
+                          Icons.access_alarm,
+                          Colors.green,
+                          '36 min',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
+            ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 600),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: isExpanded ? 0 : 2,
+                  sigmaY: isExpanded ? 0 : 2,
+                ),
+                child: Container(
+                  color: Colors.transparent,
                 ),
               ),
             ),
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
+              curve: Curves.ease,
               margin: EdgeInsets.only(top: isExpanded ? expandedHeight : 0),
               height: _screenHeight(context) - (isExpanded ? expandedHeight : 0),
               decoration: const BoxDecoration(
@@ -176,16 +170,21 @@ class _TaskListAnimationState extends State<TaskListAnimation> {
                   children: [
                     Expanded(
                       child: AnimatedPadding(
-                        duration: const Duration(milliseconds: 300),
-                        padding: !isExpanded
+                        duration: const Duration(milliseconds: 200),
+                        padding: isExpanded
                             ? const EdgeInsets.only(
-                                top: 100,
+                                top: 20,
                                 left: 20,
                                 right: 20,
                               )
-                            : const EdgeInsets.symmetric(horizontal: 20),
+                            : const EdgeInsets.only(
+                                top: 100,
+                                left: 20,
+                                right: 20,
+                              ),
                         child: ListView(
-                          physics: const ClampingScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          physics: const NeverScrollableScrollPhysics(),
                           children: [
                             _buildTaskTile('Wake up', '08:00', Icons.sunny, Colors.yellow),
                             _buildTaskTile('Design Crit', '10:00'),
@@ -278,8 +277,8 @@ class _TaskListAnimationState extends State<TaskListAnimation> {
 
   Widget _buildTaskTile(String title, String time, [IconData? icon, Color? iconColor]) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: _screenHeight(context) * 0.01,
+      padding: const EdgeInsets.symmetric(
+        vertical: 12,
       ),
       child: Row(
         children: [

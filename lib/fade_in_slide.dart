@@ -10,6 +10,7 @@ class FadeInSlide extends StatefulWidget {
     this.curve = Curves.easeInOutBack,
     this.fadeOffset = 40,
     this.direction = FadeSlideDirection.ttb,
+    this.autoPlay = true,
   });
 
   final Widget child;
@@ -17,12 +18,13 @@ class FadeInSlide extends StatefulWidget {
   final double fadeOffset;
   final Curve curve;
   final FadeSlideDirection direction;
+  final bool autoPlay;
 
   @override
-  State<FadeInSlide> createState() => _FadeInSlideState();
+  State<FadeInSlide> createState() => FadeInSlideState();
 }
 
-class _FadeInSlideState extends State<FadeInSlide> with TickerProviderStateMixin {
+class FadeInSlideState extends State<FadeInSlide> with TickerProviderStateMixin {
   late AnimationController controller;
   late Animation<double> opacityAnimation;
   late Animation<double> inAnimation;
@@ -45,12 +47,23 @@ class _FadeInSlideState extends State<FadeInSlide> with TickerProviderStateMixin
       ..addListener(() {
         setState(() {});
       });
+
+    if (widget.autoPlay) {
+      controller.forward();
+    }
+  }
+
+  void playAnimation() {
+    controller.forward();
+  }
+
+  void resetAnimation() {
+    controller.reset();
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    controller.forward();
     return Transform.translate(
       offset: switch (widget.direction) {
         FadeSlideDirection.ltr => Offset(inAnimation.value, 0),
